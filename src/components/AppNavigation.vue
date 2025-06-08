@@ -1,7 +1,7 @@
 <template>
 <v-layout>
-    <v-navigation-drawer v-model="drawer" floating color="#7FABA861" :width="300" style="overflow: hidden; display: flex; flex-direction: column;">
-  
+    <v-navigation-drawer v-model="drawer" floating :width="300" style="background-color: #2b2431">
+
       <template v-slot:prepend>
         <v-row class="align-center" style=" padding: 5px;">
     <!-- Drawer button (left-aligned) -->
@@ -32,7 +32,7 @@
   </v-row>
        
      
-      <v-list-item class="green_text plus-jakarta-sans" style="font-weight: 600; font-size: 14px;"
+      <v-list-item class="green_text plus-jakarta-sans mt-3" style="font-weight: 600; font-size: 14px;"
         value="Your Conversations">
         <template v-slot:prepend>
           <v-icon class="icon-color">mdi-message-outline</v-icon>
@@ -49,12 +49,12 @@
     <v-app-bar >
 
     <!-- <v-spacer></v-spacer> -->
+
     <v-btn icon>
       <v-icon @click.stop="drawer = !drawer">mdi-menu</v-icon>
     </v-btn>
     </v-app-bar>
     
-
 
     
     <div style="flex: 1; overflow-y: auto">
