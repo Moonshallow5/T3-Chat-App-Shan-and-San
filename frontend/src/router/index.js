@@ -6,14 +6,20 @@
 
 // Composables
 import { createRouter, createWebHistory } from 'vue-router/auto'
-import HelloWorld from '@/components/HelloWorld.vue'
+import Chat from '@/pages/Chat.vue'
+import Login from '@/pages/Login.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: "/",
-      component: HelloWorld,
+      path: "/chat",
+      component: Chat,
       name: 'index',
+    },
+    {
+      path: "/",
+      component: Login,
+      name: 'login',
     },
 
   ]

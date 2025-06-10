@@ -13,7 +13,12 @@
     "@fontsource/roboto": "5.2.5",
     "@mdi/font": "7.4.47",
     "vue": "^3.5.13",
-    "vuetify": "^3.8.1"
+    "vuetify": "^3.8.1",
+    "vuex": "^4.0.2",
+    "vuex-persistedstate": "^4.1.0",
+    "secure-ls": "^2.0.0",
+    "vue-toast-notification": "^3.1.2",
+    "axios": "^1.7.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",

@@ -1,0 +1,1 @@
+export const API_URL="https://t3-chat-app-backend.onrender.com"
