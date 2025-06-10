@@ -13,5 +13,8 @@ app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
 });
 
+// Auth routes
+app.use('/auth',require("./routes/authRoutes"));
+
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
