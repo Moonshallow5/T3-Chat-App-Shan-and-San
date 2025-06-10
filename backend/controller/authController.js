@@ -81,9 +81,9 @@ exports.login = async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, user.password);
 
       if (passwordMatch) {
-        // Update last_login_at
+        // Update last_login_at and updated_at
         await pool.query(
-          "UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = $1 AND updated_at = CURRENT_TIMESTAMP",
+          "UPDATE users SET last_login_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
           [user.id]
         );
 
