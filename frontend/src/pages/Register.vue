@@ -1,7 +1,7 @@
 <template>
     <v-container class="fill-height d-flex justify-center align-center">
       <v-card class="register-card" style="width: 100%;">
-        <v-card-title class="title">Register here</v-card-title>
+        <v-card-title class="title">Register Here</v-card-title>
         <v-card-subtitle class="subtitle">
           Already have an account?
           <span @click="login" class="register-link ">
@@ -84,6 +84,7 @@
 
 <script>
 import { API_URL } from "@/configs";
+import axios from "axios";
 import { mapState } from "vuex";
 export default {
 
@@ -103,32 +104,26 @@ export default {
 
   methods: {
     async register() {
+      try {
+        this.$store.commit("setLoading", "register-btn");
+        const response = await axios.post(`${API_URL}/auth/register`, {
+          username: this.username,
+          name: this.name,
+          password: this.password,
+          confirm_password: this.confirmPassword
+        });
 
-  try {
-    this.$store.commit("setLoading", "register-btn");
-    const response = await Ajax(
-      "user/register",
-      {
-        username: this.username,
-        name:this.name,
-        password: this.password,
-        confirm_password: this.confirmPassword,
-      },
-      "POST",
-    );
-
-    if(response.isSuccess){
-      this.$toast.success(response.data.message || "Registration successful");
-      this.$router.push("/");
-    }
-
-   
-  } catch (error) {
-    console.error("Register error:", error);
-  } finally {
-    this.$store.commit("stopLoading", "register-btn");
-  } 
-},
+        if (response.data) {
+          this.$toast.success(response.data.message);
+          this.$router.push("/");
+        }
+      } catch (error) {
+        const errorMessage = error.response?.data?.message || "Registration failed. Please try again.";
+        this.$toast.error(errorMessage);
+      } finally {
+        this.$store.commit("stopLoading", "register-btn");
+      }
+    },
     togglePassword() {
       this.showPassword = !this.showPassword;
     },
@@ -164,7 +159,6 @@ export default {
 }
 
 .subtitle {
-    font-size: 14px;
     color: gray;
     white-space: nowrap;
     display: flex;
@@ -174,9 +168,10 @@ export default {
   }
 
 .register-link {
-  margin-left: 5px;
   text-decoration: underline;
   color: #3f51b5;
+  cursor: pointer;
+  display: inline-block;
 }
 
 /* Input Group Styling */
@@ -187,7 +182,6 @@ export default {
 
 .input-group label {
   font-weight: 500;
-  font-size: 14px;
   margin-bottom: 4px;
   color: grey;
 }

@@ -136,17 +136,7 @@ import axios from "axios";
   
   <style scoped>
   
-  .remember-forgot {
-    margin-bottom: 4px;
-    color: gray;
-  }
-  
-  .forgot-password {
-    color: #3f51b5;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  
+
   .login-card {
     background: white;
     padding: 2rem;
@@ -163,7 +153,6 @@ import axios from "axios";
   }
   
   .subtitle {
-    font-size: 14px;
     color: gray;
     white-space: nowrap;
     display: flex;
