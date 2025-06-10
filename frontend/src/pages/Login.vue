@@ -19,7 +19,7 @@
               hide-details
               outlined
               dense
-              style="background-color:wheat; color: black;"
+              style="color: black;"
             />
           </div>
   
@@ -35,7 +35,7 @@
               hide-details
               outlined
               dense
-              style="background-color:wheat; color: black;"
+              style=" color: black;"
             />
           </div>
   
@@ -137,13 +137,11 @@ import axios from "axios";
   <style scoped>
   
   .remember-forgot {
-    font-size: 14px;
     margin-bottom: 4px;
     color: gray;
   }
   
   .forgot-password {
-    font-size: 14px;
     color: #3f51b5;
     text-decoration: underline;
     cursor: pointer;
@@ -160,7 +158,6 @@ import axios from "axios";
   }
   
   .title {
-    font-size: 24px;
     font-weight: bold;
     color: black;
   }
@@ -168,12 +165,18 @@ import axios from "axios";
   .subtitle {
     font-size: 14px;
     color: gray;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
   }
   
   .register-link {
-    margin-left: 5px;
     text-decoration: underline;
     color: #3f51b5;
+    cursor: pointer;
+    display: inline-block;
   }
   
   .input-group {
@@ -183,9 +186,7 @@ import axios from "axios";
   
   .input-group label {
     font-weight: 500;
-    font-size: 14px;
     margin-bottom: 4px;
-    display: inline-block;
     color: grey;
   }
   

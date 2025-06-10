@@ -8,19 +8,26 @@
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import Chat from '@/pages/Chat.vue'
 import Login from '@/pages/Login.vue'
+import Register from '@/pages/Register.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/chat",
       component: Chat,
-      name: 'index',
+      name: 'Chat',
     },
     {
       path: "/",
       component: Login,
       name: 'login',
     },
+    {
+      path: "/register",
+      component: Register,
+      name: 'register',
+    },
+
 
   ]
 })
