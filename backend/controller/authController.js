@@ -73,7 +73,7 @@ exports.login = async (req, res) => {
     
     // Check if user exists and is active
     const result = await pool.query(
-      "SELECT id, username, password FROM users WHERE username = $1 AND is_deleted = false AND is_active = true",
+      "SELECT id, username, name, password FROM users WHERE username = $1 AND is_deleted = false AND is_active = true",
       [username]
     );
 
@@ -94,7 +94,8 @@ exports.login = async (req, res) => {
           message: "Login successful", 
           data: {
             token,
-            user_id: user.id
+            user_id: user.id,
+            name: user.name
           }
         });
       } else {
