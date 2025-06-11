@@ -42,7 +42,9 @@ exports.register = async(req, res) => {
 
     return res.json({ 
       message: "User registered successfully", 
-      user_id: result.rows[0].id 
+      data: {
+        user_id: result.rows[0].id
+      }
     });
   } catch(error) {
     console.error("Registration error:", error);
@@ -90,8 +92,10 @@ exports.login = async (req, res) => {
         const token = generateToken(username);
         return res.json({ 
           message: "Login successful", 
-          token, 
-          user_id: user.id 
+          data: {
+            token,
+            user_id: user.id
+          }
         });
       } else {
         return res.status(401).json({ message: "Invalid password" });
