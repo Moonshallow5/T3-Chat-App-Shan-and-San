@@ -76,8 +76,7 @@
   <script>
   import { mapState } from "vuex";
   import { API_URL } from "@/configs";
-import axios from "axios";
-  
+  import Ajax from "@/scripts/axios.js";  
   
   export default {
     name:"login",
@@ -88,6 +87,7 @@ import axios from "axios";
       return {
         username: "",
         password: "",
+        
         showPassword: false,
       };
     },
@@ -100,16 +100,22 @@ import axios from "axios";
   
         try {
           this.$store.commit("setLoading", "login");
-          const response = await axios.post(`${API_URL}/auth/login`, {
+          const response = await Ajax('auth/login',
+          {
             username: this.username,
             password: this.password,
           });
+
+          // await axios.post(`${API_URL}/auth/login`, {
+          //   username: this.username,
+          //   password: this.password,
+          // });
   
           console.log("Response:", response);
   
           if (response.data?.token) {
             this.$store.commit("setToken", response.data.token);
-            this.$store.commit("setUser", { id: response.data.user_id, username: this.username });
+            this.$store.commit("setUser", { id: parseInt(response.data.user_id), username: this.username, name: response.data.name });
             this.$toast.success("Login successful!");
             this.$router.replace('/chat');
           } else {

@@ -106,7 +106,7 @@ export default {
     async register() {
       try {
         this.$store.commit("setLoading", "register-btn");
-        const response = await axios.post(`${API_URL}/auth/register`, {
+        const response = await Ajax('auth/register', {
           username: this.username,
           name: this.name,
           password: this.password,

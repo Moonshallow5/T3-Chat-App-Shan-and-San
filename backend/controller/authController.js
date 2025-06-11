@@ -77,8 +77,11 @@ exports.login = async (req, res) => {
       [username]
     );
 
+    console.log("Database result:", result.rows[0]); // Log the database result
+
     if (result.rows.length > 0) {
       const user = result.rows[0];
+      console.log("User object:", user); // Log the user object
       
       const passwordMatch = await bcrypt.compare(password, user.password);
 
@@ -94,7 +97,7 @@ exports.login = async (req, res) => {
           message: "Login successful", 
           data: {
             token,
-            user_id: user.id,
+            user_id: parseInt(user.id),
             name: user.name
           }
         });
