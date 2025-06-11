@@ -12,6 +12,11 @@ const defaultState = {
   token: null,
   loading: {},
   resetEmail: null,
+  session_id: null,
+  pageTitle: "",
+  chatSessions: [],
+  messages: [],
+  sessions: [],
 };
 
 const persistedState = createPersistedState({
@@ -37,8 +42,41 @@ const mutations = {
   stopLoading(state, payload) {
     state.loading[payload] = false;
   },
+  setMessages(state, payload) {
+    state.messages = payload;
+  },
   clearLoading(state) {
     state.loading = {};
+  },
+  appendMessage(state, payload) {
+    state.messages = [...state.messages, payload];
+  },
+  appendChatSessions(state, payload) {
+    state.chatSessions = [payload, ...state.chatSessions];
+  },
+  clearMessage(state) {
+    state.messages = [];
+  },
+  clearPageTitle(state) {
+    state.pageTitle = '' ;
+  },
+  setChatSessions(state, payload) {
+    state.chatSessions = payload;
+  },
+  setMessages(state, payload) {
+    state.messages = payload;
+  },
+  setSessionId(state, payload) {
+    state.session_id = payload;
+  },
+  clearSessionId(state) {
+    state.session_id = null;
+  },
+  setSessions(state, payload) {
+    state.sessions = payload;
+  },
+  setPageTitle(state, payload) {
+    state.pageTitle = payload;
   }, 
   resetState(state) {
     Object.assign(state, defaultState);

@@ -9,6 +9,7 @@ import { createRouter, createWebHistory } from 'vue-router/auto'
 import Chat from '@/pages/Chat.vue'
 import Login from '@/pages/Login.vue'
 import Register from '@/pages/Register.vue'
+import Profile from '@/pages/Profile.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -26,6 +27,11 @@ const router = createRouter({
       path: "/register",
       component: Register,
       name: 'register',
+    },
+    {
+      path: "/settings",
+      component: Profile,
+      name: 'profile',
     },
 
 
