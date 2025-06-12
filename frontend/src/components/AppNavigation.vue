@@ -77,7 +77,7 @@
     
 
     
-    <div style="flex: 1; overflow-y: auto">
+    <div style="flex: 1; overflow-y: auto; background-color: #363942;">
                 <slot></slot>
             </div>
             </v-main>
