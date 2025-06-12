@@ -93,9 +93,26 @@ export default{
     }
   },
   computed: {
-    ...mapState(['user'])
+    ...mapState(['user', 'chatSessions'])
   },
   
+  watch: {
+    '$route.params.sessionId': {
+      immediate: true,
+      handler(newSessionId) {
+        if (newSessionId) {
+          this.loadChatSession(newSessionId);
+        } else {
+          this.currentSessionId = null;
+          this.messages = [];
+          this.pageTitle = '';
+          this.$store.commit('setMessages', []);
+          this.$store.commit('setPageTitle', '');
+        }
+      }
+    }
+  },
+
   methods: {
     timeAgo,
     async createNewSession() {
@@ -105,13 +122,38 @@ export default{
         });
         this.currentSessionId = response.data.session_id;
         this.$store.commit('setSessionId', this.currentSessionId);
-        // Set initial page title
-        this.pageTitle = 'New Chat';
-        this.$store.commit('setPageTitle', 'New Chat');
+        
+        const chatSession = {
+          id: this.currentSessionId,
+          title: '',
+          last_message: '',
+          updated_at: new Date().getTime()
+        };
+        this.$store.commit('appendChatSessions', chatSession);
+        
+        // Update route to include session ID
+        this.$router.push(`/chat/${this.currentSessionId}`);
       } catch (error) { 
         this.$toast.error("Failed to create chat session");
       }
     },
+
+    async loadChatSession(sessionId) {
+      try {
+        const response = await Ajax(`chat/session/${sessionId}?user_id=${this.user.id}`, {}, 'GET');
+        
+        this.currentSessionId = sessionId;
+        this.messages = response.data.messages;
+        this.pageTitle = response.data.title || 'Chat';
+        this.$store.commit('setPageTitle', this.pageTitle);
+        this.$store.commit('setMessages', this.messages);
+        
+        this.scrollToBottom();
+      } catch (error) {
+        this.$toast.error("Failed to load chat session");
+      }
+    },
+
     scrollToBottom() {
         this.$nextTick(() => {
           const chatContainer = document.querySelector(".chat-container");
@@ -137,7 +179,6 @@ export default{
           is_bot: false
         });
 
-        // Create message object
         const userMessage = {
           content: this.message_input,
           role: 'user',
@@ -148,7 +189,18 @@ export default{
         this.messages.push(userMessage);
         this.$store.commit('appendMessage', userMessage);
 
-        // Clear input
+        // Update chat session title if it's the first message
+        if (this.messages.length === 1) {
+          const title = this.message_input.substring(0, 30) + (this.message_input.length > 30 ? '...' : '');
+          this.pageTitle = title;
+          this.$store.commit('updateChatSession', {
+            id: this.currentSessionId,
+            title: title,
+            last_message: this.message_input,
+            updated_at: new Date().getTime()
+          });
+        }
+
         this.message_input = "";
 
         // Handle bot response
@@ -161,17 +213,6 @@ export default{
           
           this.messages.push(botMessage);
           this.$store.commit('appendMessage', botMessage);
-
-          // Add chat session to store if it's a new session
-          if (!this.currentSessionId) {
-            const chatSession = {
-              id: this.currentSessionId,
-              title: this.message_input.substring(0, 30) + '...',
-              last_message: this.message_input,
-              updated_at: new Date().getTime()
-            };
-            this.$store.commit('appendChatSessions', chatSession);
-          }
         }
 
         // Scroll to bottom after messages are added
@@ -180,7 +221,7 @@ export default{
         this.$toast.error("Failed to send message");
       }
     }
-  }
+  },
 }
 </script>
 
@@ -189,10 +230,19 @@ export default{
   .chat-container {
     overflow-y: auto;
     overflow-x: hidden;
-    height: calc(100vh - 200px); /* Adjust this value based on your header and input height */
+    height: calc(100vh - 200px); 
     flex: 1;
     border-radius: 15px;
-    padding-bottom: 100px; /* Add padding to prevent messages from being hidden behind input */
+    padding-bottom: 100px; 
+    
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
   
 

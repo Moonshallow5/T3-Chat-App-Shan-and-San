@@ -63,6 +63,12 @@ const mutations = {
   setChatSessions(state, payload) {
     state.chatSessions = payload;
   },
+  updateChatSession(state, payload) {
+    const index = state.chatSessions.findIndex(session => session.id === payload.id);
+    if (index !== -1) {
+      state.chatSessions[index] = { ...state.chatSessions[index], ...payload };
+    }
+  },
   setMessages(state, payload) {
     state.messages = payload;
   },

@@ -20,7 +20,8 @@
              density="comfortable"
              rounded
              size="large"
-             style="text-transform: none; width: 100%;">
+             style="text-transform: none; width: 100%;"
+             @click="newChat">
         <v-icon left class="mr-2" size="17.5">mdi-plus</v-icon>
         <span class="text-margin mr-2" style="font-size: 14px;">New Chat</span>
       </v-btn>
@@ -35,6 +36,26 @@
         </template>
         Your Conversations</v-list-item>
       <v-divider></v-divider>
+
+      <!-- Add chat sessions list -->
+      <v-list density="compact" class="pt-2">
+        <v-list-item
+          v-for="session in chatSessions"
+          :key="session.id"
+          :value="session.id"
+          class="green_text plus-jakarta-sans"
+          style="font-weight: 500; font-size: 14px;"
+          @click="openChat(session)"
+        >
+          <template v-slot:prepend>
+            <v-icon class="icon-color">mdi-chat-outline</v-icon>
+          </template>
+          <v-list-item-title>{{ session.title }}</v-list-item-title>
+          <template v-slot:append>
+            <span class="text-caption text-grey">{{ formatDate(session.updated_at) }}</span>
+          </template>
+        </v-list-item>
+      </v-list>
     </template>
 
     <template v-slot:append>
@@ -65,6 +86,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import { timeAgo } from "@/scripts/common.js";
 
 export default{
 
@@ -73,6 +96,30 @@ export default{
     data(){
         return{
         drawer:true,
+        }
+    },
+
+    computed: {
+        ...mapState(['chatSessions'])
+    },
+
+    methods: {
+        formatDate(timestamp) {
+            return timeAgo(timestamp);
+        },
+        
+        openChat(session) {
+            this.$router.push(`/chat/${session.id}`);
+        },
+
+        newChat() {
+            // Reset store state
+            this.$store.commit('setMessages', []);
+            this.$store.commit('setPageTitle', '');
+            this.$store.commit('clearSessionId');
+            
+            // Navigate to base chat route
+            this.$router.push('/chat');
         }
     }
 }

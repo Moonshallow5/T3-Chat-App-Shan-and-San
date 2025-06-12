@@ -19,6 +19,11 @@ const router = createRouter({
       name: 'Chat',
     },
     {
+      path: "/chat/:sessionId",
+      component: Chat,
+      name: 'ChatSession',
+    },
+    {
       path: "/",
       component: Login,
       name: 'login',
@@ -33,8 +38,6 @@ const router = createRouter({
       component: Profile,
       name: 'profile',
     },
-
-
   ]
 })
 
