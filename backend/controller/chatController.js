@@ -75,7 +75,7 @@ exports.sendMessage = async (req, res) => {
 
 exports.getSession = async (req, res) => {
   const { sessionId } = req.params;
-  const { user_id } = req.body;
+  const { user_id } = req.query;
 
   try {
     // First verify the session belongs to the user
