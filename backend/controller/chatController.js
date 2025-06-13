@@ -115,4 +115,29 @@ exports.getSession = async (req, res) => {
     console.error("Get session error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
+};
+
+exports.getAllSessions = async (req, res) => {
+  const { user_id } = req.query;
+
+  try {
+    const sessions = await pool.query(
+      `SELECT 
+        id,
+        title,
+        updated_at
+      FROM chat_sessions 
+      WHERE user_id = $1 
+      ORDER BY updated_at DESC`,
+      [user_id]
+    );
+
+    return res.json({
+      message: "Chat sessions retrieved successfully",
+      data: sessions.rows
+    });
+  } catch (error) {
+    console.error("Get all sessions error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }; 
