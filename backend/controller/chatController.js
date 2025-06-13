@@ -52,6 +52,12 @@ exports.sendMessage = async (req, res) => {
       [session_id]
     );
 
+    // Get the current session title
+    const sessionTitle = await pool.query(
+      "SELECT title FROM chat_sessions WHERE id = $1",
+      [session_id]
+    );
+
     // TODO: Add your chatbot logic here to generate a response
     const botResponse = "This is a sample bot response. Replace with actual chatbot logic.";
 
@@ -64,7 +70,8 @@ exports.sendMessage = async (req, res) => {
     return res.json({
       message: "Message sent successfully",
       data: {
-        bot_response: botResponse
+        bot_response: botResponse,
+        session_title: sessionTitle.rows[0].title
       }
     });
   } catch (error) {
