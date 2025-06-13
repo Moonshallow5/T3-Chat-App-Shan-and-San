@@ -18,12 +18,14 @@
         </v-row>
 
         <v-row class="align-start mb-4" v-if="message.role === 'persona'">
-          <v-col>
-            <div class="d-flex align-center justify-end">
-              <strong>{{ chatbot_name }}</strong> <span style="color: grey;" class="ml-2">{{ timeAgo(message.created_at) }}</span>
-            </div>
-            <div class="message-box-persona mt-1 d-flex justify-end">
-              <div v-html="message.content" class="custom-list" style="text-align: right;"></div> 
+          <v-col class="d-flex justify-end">
+            <div class="d-flex flex-column align-end">
+              <div class="d-flex align-center">
+                <strong>{{ chatbot_name }}</strong> <span style="color: grey;" class="ml-2">{{ timeAgo(message.created_at) }}</span>
+              </div>
+              <div class="message-box-persona mt-1">
+                <div v-html="message.content" class="custom-list"></div> 
+              </div>
             </div>
           </v-col>
           <v-col cols="auto">
@@ -37,32 +39,33 @@
 
       
 
-      <v-row v-if="pageTitle == ''"  class="text-h5 poppins mb-5"
-      style="position: absolute; bottom: 40vh; display: flex; justify-content: center; align-items: center; width: 100%;">
-      <span class="d-flex justify-center align-center font-weight-medium"
-        :style="{ color: $vuetify.theme.global.current.colors.green_button }"> Hi, how may I help you today? </span>
-    </v-row>
+      <v-row v-if="pageTitle == ''" class="text-h5 poppins mb-5 welcome-message">
+        <span class="d-flex justify-center align-center font-weight-medium"
+          :style="{ color: $vuetify.theme.global.current.colors.green_button }"> Hi, how may I help you today? </span>
+      </v-row>
 
-    <v-row v-if="pageTitle !== ''" no-gutters class="message-container" style="position: fixed; bottom: 10vh; width: 95%;">
-      <v-col>
-        <input type="text" class="custom-input" placeholder="Ask me anything..." style="width: 100%;height: 100%;"
-          v-model="message_input" @keyup.enter="sendMessage">
-      </v-col>
-      <v-col cols="auto">
-        <v-btn icon="mdi-arrow-up" @click="sendMessage" color="#00C3B2" size="x-small" class="ml-2"
-          style="color: white;"></v-btn>
-      </v-col>
-    </v-row>
-    <v-row v-else no-gutters class="message-container" style="position: fixed; bottom: 30vh; width: 70%;">
-      <v-col>
-        <input type="text" class="custom-input" placeholder="Ask me anything..." style="width: 100%;height: 100%;"
-          v-model="message_input" @keyup.enter="sendMessage">
-      </v-col>
-      <v-col cols="auto">
-        <v-btn icon="mdi-arrow-up" @click="sendMessage" color="#00C3B2" size="x-small" class="ml-2"
-          style="color: white;"></v-btn>
-      </v-col>
-    </v-row>
+      <div class="input-wrapper">
+        <v-row v-if="pageTitle !== ''" no-gutters class="message-container chat-mode">
+          <v-col>
+            <input type="text" class="custom-input" placeholder="Ask me anything..." style="width: 100%;height: 100%;"
+              v-model="message_input" @keyup.enter="sendMessage">
+          </v-col>
+          <v-col cols="auto">
+            <v-btn icon="mdi-arrow-up" @click="sendMessage" color="#00C3B2" size="x-small" class="ml-2"
+              style="color: white;"></v-btn>
+          </v-col>
+        </v-row>
+        <v-row v-else no-gutters class="message-container empty-mode">
+          <v-col>
+            <input type="text" class="custom-input" placeholder="Ask me anything..." style="width: 100%;height: 100%;"
+              v-model="message_input" @keyup.enter="sendMessage">
+          </v-col>
+          <v-col cols="auto">
+            <v-btn icon="mdi-arrow-up" @click="sendMessage" color="#00C3B2" size="x-small" class="ml-2"
+              style="color: white;"></v-btn>
+          </v-col>
+        </v-row>
+      </div>
     </v-container>
 
   </AppNavigation>
@@ -93,10 +96,22 @@ export default{
     }
   },
   computed: {
-    ...mapState(['user', 'chatSessions'])
+    ...mapState(['user', 'chatSessions','pageTitle','session_id'])
   },
   
   watch: {
+    pageTitle(newValue) {
+      if (newValue) {
+        this.$store.commit("setPageTitle", newValue);
+       }  
+    },
+
+    '$store.state.pageTitle': {
+      handler(newTitle) {
+        this.pageTitle = newTitle;
+      },
+      immediate: true, // Sync immediately on component load
+    },
     '$route.params.sessionId': {
       immediate: true,
       handler(newSessionId) {
@@ -115,6 +130,17 @@ export default{
 
   methods: {
     timeAgo,
+    async loadChatSessions() {
+      console.log('Loading chat sessions for user:', this.user);
+      try {
+        const response = await Ajax(`chat/sessions?user_id=${this.user.id}`, {}, 'GET');
+        console.log('Chat sessions response:', response);
+        this.$store.commit('setChatSessions', response.data);
+      } catch (error) {
+        console.error('Error loading chat sessions:', error);
+        this.$toast.error("Failed to load chat sessions");
+      }
+    },
     async createNewSession() {
       try {
         const response = await Ajax('chat/session', {
@@ -147,6 +173,9 @@ export default{
         this.pageTitle = response.data.title || 'Chat';
         this.$store.commit('setPageTitle', this.pageTitle);
         this.$store.commit('setMessages', this.messages);
+        this.$store.commit("setSessionId", sessionId);
+
+
         
         this.scrollToBottom();
       } catch (error) {
@@ -189,18 +218,6 @@ export default{
         this.messages.push(userMessage);
         this.$store.commit('appendMessage', userMessage);
 
-        // Update chat session title if it's the first message
-        if (this.messages.length === 1) {
-          const title = this.message_input.substring(0, 30) + (this.message_input.length > 30 ? '...' : '');
-          this.pageTitle = title;
-          this.$store.commit('updateChatSession', {
-            id: this.currentSessionId,
-            title: title,
-            last_message: this.message_input,
-            updated_at: new Date().getTime()
-          });
-        }
-
         this.message_input = "";
 
         // Handle bot response
@@ -213,6 +230,12 @@ export default{
           
           this.messages.push(botMessage);
           this.$store.commit('appendMessage', botMessage);
+
+          // Update page title if it's the first message
+          if (this.messages.length === 1 && response.data.session_title) {
+            this.$store.commit('setPageTitle', response.data.session_title);
+            this.$store.commit('setSessionId', this.currentSessionId);
+          }
         }
 
         // Scroll to bottom after messages are added
@@ -220,20 +243,42 @@ export default{
       } catch (error) {
         this.$toast.error("Failed to send message");
       }
-    }
+    },
   },
+
+  mounted() {
+    if (this.$store.state.pageTitle) {
+        this.pageTitle = this.$store.state.pageTitle;
+        this.$store.commit("setPageTitle", this.pageTitle);
+      }
+    console.log('Chat component mounted');
+    console.log('Current user:', this.user);
+    this.loadChatSessions();
+  }
 }
 </script>
 
 
 <style scoped>
+  .chat-app {
+    flex: 1;
+    height: 100vh;
+    border-radius: 15px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
   .chat-container {
     overflow-y: auto;
     overflow-x: hidden;
-    height: calc(100vh - 200px); 
+    height: calc(80vh - 380px);
     flex: 1;
     border-radius: 15px;
-    padding-bottom: 100px; 
+    padding-bottom: 200px;
+    margin-bottom: 20px;
     
     /* Hide scrollbar for Chrome, Safari and Opera */
     &::-webkit-scrollbar {
@@ -244,33 +289,52 @@ export default{
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
-  
 
-.chat-app {
-    flex: 1;
-    height: 100vh;
-    border-radius: 15px;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    position: relative;
+  .welcome-message {
+    position: absolute;
+    bottom: 40vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
+
+  .input-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background-color: #363942;
+  }
+
   .message-container {
-    width: 100%; 
-    height: 50px; 
-    background-color: white; 
-    border-radius: 25px; 
-    align-items: center; 
+    background-color: white;
+    border-radius: 25px;
+    align-items: center;
     padding: 0 7px;
     border: 1px solid #ccc;
     z-index: 1;
+    transition: all 0.3s ease;
+    margin: 0 auto;
+  }
+
+  .message-container.chat-mode {
+    width: 70%;
+    height: 50px;
+  }
+
+  .message-container.empty-mode {
+    width: 70%;
+    height: 50px;
+    margin-bottom: 30vh;
   }
 
   .custom-input {
     border: none;
     padding: 10px;
     font-size: 16px;
-  color: #1a1a1a;
-
+    color: #1a1a1a;
   }
   .message-box-user {
     background-color: #F8FAFC;
@@ -294,7 +358,6 @@ export default{
     display: inline-block;
     max-width: 70%;
     word-wrap: break-word;
-    text-align: right;
   }
 
   .custom-input::selection {

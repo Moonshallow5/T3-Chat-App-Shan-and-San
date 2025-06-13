@@ -38,12 +38,16 @@
       <v-divider></v-divider>
 
       <!-- Add chat sessions list -->
-      <v-list density="compact" class="pt-2">
+      <v-list density="compact" class="pt-2 chat-sessions-list" style="height: calc(100vh - 300px); overflow-y: auto;">
         <v-list-item
           v-for="session in chatSessions"
           :key="session.id"
-          :value="session.id"
-          class="green_text plus-jakarta-sans"
+          :value="null"
+          class="green_text plus-jakarta-sans session-item"
+          :class="{
+            'active-title': session.id === $store.state.session_id,
+            'inactive-title': session.id !== $store.state.session_id
+          }"
           style="font-weight: 500; font-size: 14px;"
           @click="openChat(session)"
         >
@@ -100,7 +104,22 @@ export default{
     },
 
     computed: {
-        ...mapState(['chatSessions'])
+        ...mapState(['chatSessions', 'pageTitle','session_id'])
+    },
+
+    watch: {
+        '$store.state.pageTitle': {
+            handler(newTitle) {
+                if (newTitle) {
+                    // Find the current session and update its title
+                    const currentSession = this.chatSessions.find(s => s.id === this.$store.state.session_id);
+                    if (currentSession) {
+                        currentSession.title = newTitle;
+                    }
+                }
+            },
+            immediate: true
+        }
     },
 
     methods: {
@@ -128,16 +147,22 @@ export default{
 
 <style scoped>
 
-.fixed-btn{
-
-position: absolute;
-top: 20px;
-left: 260px; /* Moves button just outside drawer */
-z-index: 1100;
-transition: left 0.3s ease-in-out;
-
+.session-item.active-title {
+  background-color:#c0c0c0!important;
+  font-weight: bold !important;
 }
+.session-item {
+  position: relative;
+}
+.fixed-btn {
+  position: absolute;
+  top: 20px;
+  left: 260px;
+  z-index: 1100;
+  transition: left 0.3s ease-in-out;
+}
+
 .v-navigation-drawer:not(.v-navigation-drawer--active) + .fixed-btn {
-left: 1px;
+  left: 1px;
 }
 </style>

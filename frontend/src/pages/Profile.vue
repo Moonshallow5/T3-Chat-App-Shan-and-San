@@ -1,6 +1,6 @@
 <template>
   <AppNavigation>
-    <v-container fluid>
+    <v-container class="chat-app" fluid>
       <h3  class="text-center poppins green-text">Profile Settings</h3>
   
       <!-- Show user profile with avatar on left, name and email on right, name and email editable, have a save button and a button to edit password -->
@@ -53,35 +53,13 @@
   </script>
     
   <style scoped>
-  .avatar-wrapper {
-    position: relative;
-    display: inline-block;
-    overflow: hidden; /*prevents avatar from overlapping into menu on mobile view*/
+   .chat-app {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100vh;
+    flex: 1;
+    border-radius: 15px;
   }
   
-  .avatar-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 50%;
-  }
-  
-  .avatar-wrapper:hover .avatar-overlay {
-    opacity: 1;
-    cursor: pointer;
-  }
-  
-  .green-text {
-    color: #475569;
-    font-weight: 700;
-  }
   
   </style>
