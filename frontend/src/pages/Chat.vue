@@ -274,10 +274,10 @@ export default{
   .chat-container {
     overflow-y: auto;
     overflow-x: hidden;
-    height: calc(80vh - 380px);
+    height: calc(100vh - 380px);
     flex: 1;
     border-radius: 15px;
-    padding-bottom: 200px;
+    padding-bottom: 100px;
     margin-bottom: 20px;
     
     /* Hide scrollbar for Chrome, Safari and Opera */
@@ -297,6 +297,7 @@ export default{
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1000;
   }
 
   .input-wrapper {

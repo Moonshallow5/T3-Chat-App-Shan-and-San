@@ -118,12 +118,8 @@
             this.$store.commit("setUser", { id: parseInt(response.data.user_id), username: this.username, name: response.data.name });
             this.$toast.success("Login successful!");
             this.$router.replace('/chat');
-          } else {
-            this.$toast.error("Login failed. Please try again.");
-          }
+          } 
         } catch (err) {
-          const errorMessage = err.response?.data?.message || "Something went wrong. Try again.";
-          this.$toast.error(errorMessage);
           console.error("Login error:", err);
         } finally {
           this.$store.commit("stopLoading", "login");
