@@ -83,8 +83,7 @@
 </template>
 
 <script>
-import { API_URL } from "@/configs";
-import axios from "axios";
+import Ajax from "@/scripts/axios.js";  
 import { mapState } from "vuex";
 export default {
 

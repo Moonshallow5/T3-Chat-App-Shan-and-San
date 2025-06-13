@@ -75,7 +75,6 @@
   
   <script>
   import { mapState } from "vuex";
-  import { API_URL } from "@/configs";
   import Ajax from "@/scripts/axios.js";  
   
   export default {
@@ -106,11 +105,6 @@
             password: this.password,
           });
 
-          // await axios.post(`${API_URL}/auth/login`, {
-          //   username: this.username,
-          //   password: this.password,
-          // });
-  
           console.log("Response:", response);
   
           if (response.data?.token) {
