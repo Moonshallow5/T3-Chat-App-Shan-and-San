@@ -1,6 +1,9 @@
 const pool = require('../models/db');
 const { OpenAI } = require("openai");
-const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
+const openai = new OpenAI({ 
+  apiKey: process.env.DEEPSEEK_API_KEY,
+  baseURL: 'https://api.deepseek.com/v1'  // DeepSeek API endpoint
+});
 
 exports.createSession = async (req, res) => {
   const { user_id } = req.body;
@@ -66,7 +69,7 @@ exports.sendMessage = async (req, res) => {
       [session_id]
     );
 
-    // Format messages for OpenAI (reverse to get chronological order)
+    // Format messages for DeepSeek
     const chatHistory = pastMessagesQuery.rows.reverse().map(msg => ({
       role: msg.is_bot ? "persona" : "user",
       content: msg.content
@@ -74,7 +77,7 @@ exports.sendMessage = async (req, res) => {
 
     try {
       const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo", // Basic model available in free tier
+        model: "deepseek-chat",
         messages: [
           { 
             role: "system", 
@@ -84,7 +87,7 @@ exports.sendMessage = async (req, res) => {
           { role: "user", content: content }
         ],
         temperature: 0.7,
-        max_tokens: 100, // Reduced token limit for free tier
+        max_tokens: 100
       });
 
       const botResponse = completion.choices[0].message.content;
@@ -103,7 +106,7 @@ exports.sendMessage = async (req, res) => {
         }
       });
     } catch (error) {
-      console.error("OpenAI API error:", error);
+      console.error("DeepSeek API error:", error);
       // Fallback response if API fails
       const fallbackResponse = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
       
