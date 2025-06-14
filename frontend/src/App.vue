@@ -9,3 +9,5 @@
 <script setup>
   //
 </script>
+
+<style src="./src/styles/variables.scss"></style>

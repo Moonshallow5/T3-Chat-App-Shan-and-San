@@ -11,7 +11,7 @@
           </v-col>
           <v-col>
             <div class="d-flex align-center">
-              <strong>You</strong> <span style="color: grey;" class="ml-2">{{ timeAgo(message.created_at) }}</span>
+              <strong>{{user.username}}</strong> <span style="color: grey;" class="ml-2">{{ timeAgo(message.created_at) }}</span>
             </div>
             <div class="message-box-user mt-1" style="color: black;">{{ message.content }}</div>
           </v-col>
@@ -89,42 +89,33 @@ export default{
       avatarImage,
       message_input:"",
       currentSessionId: null,
-      messages: [],
       chatbot_name:'T3 chat',
       pageTitle:'',
       chatbot_avatar,
     }
   },
+
   computed: {
-    ...mapState(['user', 'chatSessions','pageTitle','session_id'])
+    ...mapState(['user', 'chatSessions','pageTitle','session_id', 'messages'])
   },
-  
+
   watch: {
     pageTitle(newValue) {
       if (newValue) {
         this.$store.commit("setPageTitle", newValue);
-       }  
+      }  
+    },
+
+    session_id(newValue) {
+      this.$store.commit("setSessionId", newValue);
+      this.currentSessionId = newValue;
     },
 
     '$store.state.pageTitle': {
       handler(newTitle) {
         this.pageTitle = newTitle;
       },
-      immediate: true, // Sync immediately on component load
-    },
-    '$route.params.sessionId': {
-      immediate: true,
-      handler(newSessionId) {
-        if (newSessionId) {
-          this.loadChatSession(newSessionId);
-        } else {
-          this.currentSessionId = null;
-          this.messages = [];
-          this.pageTitle = '';
-          this.$store.commit('setMessages', []);
-          this.$store.commit('setPageTitle', '');
-        }
-      }
+      immediate: true
     }
   },
 
@@ -141,8 +132,10 @@ export default{
         this.$toast.error("Failed to load chat sessions");
       }
     },
+
     async createNewSession() {
       try {
+        console.log('creating new session')
         const response = await Ajax('chat/session', {
           user_id: parseInt(this.user.id)
         });
@@ -157,40 +150,19 @@ export default{
         };
         this.$store.commit('appendChatSessions', chatSession);
         
-        // Update route to include session ID
-        this.$router.push(`/chat/${this.currentSessionId}`);
       } catch (error) { 
         this.$toast.error("Failed to create chat session");
       }
     },
 
-    async loadChatSession(sessionId) {
-      try {
-        const response = await Ajax(`chat/session/${sessionId}?user_id=${this.user.id}`, {}, 'GET');
-        
-        this.currentSessionId = sessionId;
-        this.messages = response.data.messages;
-        this.pageTitle = response.data.title || 'Chat';
-        this.$store.commit('setPageTitle', this.pageTitle);
-        this.$store.commit('setMessages', this.messages);
-        this.$store.commit("setSessionId", sessionId);
-
-
-        
-        this.scrollToBottom();
-      } catch (error) {
-        this.$toast.error("Failed to load chat session");
-      }
-    },
-
     scrollToBottom() {
-        this.$nextTick(() => {
-          const chatContainer = document.querySelector(".chat-container");
-          if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-          }
-        });
-      },
+      this.$nextTick(() => {
+        const chatContainer = document.querySelector(".chat-container");
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      });
+    },
 
     async sendMessage() {
       if (!this.message_input.trim()) return;
@@ -214,8 +186,7 @@ export default{
           created_at: new Date().getTime()
         };
 
-        // Add user message to messages array and store
-        this.messages.push(userMessage);
+        // Add user message to store
         this.$store.commit('appendMessage', userMessage);
 
         this.message_input = "";
@@ -228,11 +199,11 @@ export default{
             created_at: new Date().getTime()
           };
           
-          this.messages.push(botMessage);
+          // Add bot message to store
           this.$store.commit('appendMessage', botMessage);
 
-          // Update page title if it's the first message
-          if (this.messages.length === 1 && response.data.session_title) {
+          // Only update page title if we don't have one yet (new chat)
+          if (response.data.session_title && !this.pageTitle) {
             this.$store.commit('setPageTitle', response.data.session_title);
             this.$store.commit('setSessionId', this.currentSessionId);
           }
@@ -248,11 +219,12 @@ export default{
 
   mounted() {
     if (this.$store.state.pageTitle) {
-        this.pageTitle = this.$store.state.pageTitle;
-        this.$store.commit("setPageTitle", this.pageTitle);
-      }
+      this.pageTitle = this.$store.state.pageTitle;
+      this.$store.commit("setPageTitle", this.pageTitle);
+    }
     console.log('Chat component mounted');
     console.log('Current user:', this.user);
+    console.log('messages yo',this.messages)
     this.loadChatSessions();
   }
 }

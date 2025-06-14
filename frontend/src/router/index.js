@@ -18,11 +18,11 @@ const router = createRouter({
       component: Chat,
       name: 'Chat',
     },
-    {
-      path: "/chat/:sessionId",
-      component: Chat,
-      name: 'ChatSession',
-    },
+    // {
+    //   path: "/chat/:sessionId",
+    //   component: Chat,
+    //   name: 'ChatSession',
+    // },
     {
       path: "/",
       component: Login,

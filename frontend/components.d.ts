@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppNavigation: typeof import('./src/components/AppNavigation.vue')['default']
     HelloWorld: typeof import('./src/pages/Chat.vue')['default']
+    Loading: typeof import('./src/components/Loading.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
