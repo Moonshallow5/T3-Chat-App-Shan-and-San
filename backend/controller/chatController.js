@@ -2,7 +2,7 @@ const pool = require('../models/db');
 const axios = require('axios');
 
 // Flask server configuration
-const FLASK_SERVER_URL = 'http://localhost:5001';  
+const FLASK_SERVER_URL = 'http://127.0.0.1:5001';  
 
 exports.createSession = async (req, res) => {
   const { user_id } = req.body;
