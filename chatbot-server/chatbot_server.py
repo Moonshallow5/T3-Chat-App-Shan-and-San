@@ -3,16 +3,24 @@ from flask_cors import CORS
 from transformers import pipeline
 import torch
 import os
+from huggingface_hub import login
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
+
+# Login to Hugging Face using token from environment variable
+hf_token = os.getenv('HUGGINGFACE_TOKEN')
+if not hf_token:
+    raise ValueError("HUGGINGFACE_TOKEN environment variable is not set")
+login(token=hf_token)
 
 # Initialize the pipeline
 chat_pipeline = pipeline(
     task="text-generation",
     model="meta-llama/Meta-Llama-3-8B-Instruct",
     torch_dtype=torch.bfloat16,
-    device_map="auto"
+    device_map="auto",
+    token=hf_token  # Pass token to pipeline
 )
 
 
