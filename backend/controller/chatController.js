@@ -1,9 +1,8 @@
 const pool = require('../models/db');
-const { OpenAI } = require("openai");
-const openai = new OpenAI({ 
-  apiKey: process.env.DEEPSEEK_API_KEY,
-  baseURL: 'https://api.deepseek.com/v1'  // DeepSeek API endpoint
-});
+const axios = require('axios');
+
+// Flask server configuration
+const FLASK_SERVER_URL = 'http://localhost:5001';  
 
 exports.createSession = async (req, res) => {
   const { user_id } = req.body;
@@ -69,28 +68,28 @@ exports.sendMessage = async (req, res) => {
       [session_id]
     );
 
-    // Format messages for DeepSeek
+    // Format messages for the model
     const chatHistory = pastMessagesQuery.rows.reverse().map(msg => ({
       role: msg.is_bot ? "persona" : "user",
       content: msg.content
     }));
 
     try {
-      const completion = await openai.chat.completions.create({
-        model: "deepseek-chat",
-        messages: [
-          { 
-            role: "system", 
-            content: "You are a helpful AI assistant. Keep responses concise and clear." 
-          },
-          ...chatHistory,
-          { role: "user", content: content }
-        ],
-        temperature: 0.7,
-        max_tokens: 100
+      console.log('Sending request to Flask server:', {
+        url: `${FLASK_SERVER_URL}/generate`,
+        text: content,
+        chatHistory
       });
 
-      const botResponse = completion.choices[0].message.content;
+      // Call the Flask server
+      const response = await axios.post(`${FLASK_SERVER_URL}/generate`, {
+        text: content,
+        chat_history: chatHistory
+      });
+
+      console.log('Received response from Flask server:', response.data);
+
+      const botResponse = response.data.response;
 
       // Insert bot response
       await pool.query(
@@ -106,8 +105,8 @@ exports.sendMessage = async (req, res) => {
         }
       });
     } catch (error) {
-      console.error("DeepSeek API error:", error);
-      // Fallback response if API fails
+      console.error("Flask server error:", error.response?.data || error.message);
+      // Fallback response if server fails
       const fallbackResponse = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
       
       await pool.query(
