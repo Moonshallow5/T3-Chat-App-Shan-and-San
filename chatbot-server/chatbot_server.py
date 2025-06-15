@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from transformers import pipeline
+from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 import torch
 import os
 from huggingface_hub import login
@@ -14,13 +14,21 @@ if not hf_token:
     raise ValueError("HUGGINGFACE_TOKEN environment variable is not set")
 login(token=hf_token)
 
-# Initialize the pipeline with a smaller model
+# Initialize with a very small model
+model_name = "distilgpt2"  # Only 82M parameters
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    torch_dtype=torch.float32,
+    low_cpu_mem_usage=True
+)
+
+# Create pipeline with the small model
 chat_pipeline = pipeline(
     task="text-generation",
-    model="facebook/opt-125m",  # Much smaller model that fits in 512MB
-    torch_dtype=torch.float32,  # Use float32 instead of bfloat16 to reduce memory
-    device_map="auto",
-    token=hf_token
+    model=model,
+    tokenizer=tokenizer,
+    device_map="auto"
 )
 
 @app.route('/generate', methods=['POST'])
@@ -34,7 +42,7 @@ def generate():
         formatted_chat = [
             {
                 "role": "system",
-                "content": "You are a helpful AI assistant. Keep responses concise and clear."
+                "content": "You are a helpful AI assistant."
             }
         ]
 
@@ -51,14 +59,15 @@ def generate():
             "content": user_input
         })
 
-        # Generate response with reduced memory usage
+        # Generate response with minimal memory usage
         response = chat_pipeline(
             formatted_chat,
-            max_new_tokens=100,  # Reduced from 200
+            max_new_tokens=50,  # Reduced further
             temperature=0.7,
             top_p=0.9,
             do_sample=True,
-            pad_token_id=chat_pipeline.tokenizer.eos_token_id
+            pad_token_id=tokenizer.eos_token_id,
+            num_return_sequences=1
         )
 
         # Extract the generated response
