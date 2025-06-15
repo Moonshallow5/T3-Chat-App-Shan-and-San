@@ -14,22 +14,21 @@ if not hf_token:
     raise ValueError("HUGGINGFACE_TOKEN environment variable is not set")
 login(token=hf_token)
 
-# Initialize the pipeline
+# Initialize the pipeline with a smaller model
 chat_pipeline = pipeline(
     task="text-generation",
-    model="meta-llama/Meta-Llama-3-8B-Instruct",
-    torch_dtype=torch.bfloat16,
+    model="facebook/opt-125m",  # Much smaller model that fits in 512MB
+    torch_dtype=torch.float32,  # Use float32 instead of bfloat16 to reduce memory
     device_map="auto",
-    token=hf_token  # Pass token to pipeline
+    token=hf_token
 )
-
 
 @app.route('/generate', methods=['POST'])
 def generate():
     try:
         data = request.json
-        user_input = data.get("text", "")  # This matches chatController.js
-        chat_history = data.get("chat_history", [])  # This matches chatController.js
+        user_input = data.get("text", "")
+        chat_history = data.get("chat_history", [])
 
         # Format chat history for the model
         formatted_chat = [
@@ -52,13 +51,14 @@ def generate():
             "content": user_input
         })
 
-        # Generate response
+        # Generate response with reduced memory usage
         response = chat_pipeline(
             formatted_chat,
-            max_new_tokens=200,
+            max_new_tokens=100,  # Reduced from 200
             temperature=0.7,
             top_p=0.9,
-            do_sample=True
+            do_sample=True,
+            pad_token_id=chat_pipeline.tokenizer.eos_token_id
         )
 
         # Extract the generated response
