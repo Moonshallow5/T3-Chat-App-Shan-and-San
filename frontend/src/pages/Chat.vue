@@ -154,6 +154,9 @@ export default{
   },
 
   watch: {
+    messages() {
+      this.scrollToBottom();
+    },
     pageTitle(newValue) {
       if (newValue) {
         this.$store.commit("setPageTitle", newValue);
@@ -253,8 +256,6 @@ export default{
           }
         }
         this.$store.commit("setSettings", { key: "processingMsg", value: false });
-        // Scroll to bottom after messages are added
-        this.scrollToBottom();
       } catch (error) {
         this.$toast.error("Failed to send message");
       }
@@ -276,6 +277,7 @@ export default{
 
     console.log('Current user:', this.user);
     console.log('messages yo',this.messages)
+    this.scrollToBottom();
   }
 }
 </script>
