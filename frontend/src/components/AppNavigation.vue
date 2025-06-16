@@ -8,7 +8,7 @@
 
 
     <!-- Heading (center-aligned) -->
-    <v-col cols="12" class="d-flex text-center" style="justify-content: center; text-align: center;">
+    <v-col cols="12" class="d-flex text-center poppins" style="justify-content: center; text-align: center;">
       <h2 >T3.chat</h2>
     </v-col>
   </v-row>
