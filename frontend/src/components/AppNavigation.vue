@@ -179,6 +179,17 @@ export default{
         formatDate(timestamp) {
             return timeAgo(timestamp);
         },
+        async loadChatSessions() {
+            console.log('Loading chat sessions for user:', this.user);
+            try {
+                const response = await Ajax(`chat/sessions?user_id=${this.user.id}`, {}, 'GET');
+                console.log('Chat sessions response:', response);
+                this.$store.commit('setChatSessions', response.data);
+            } catch (error) {
+                console.error('Error loading chat sessions:', error);
+                this.$toast.error("Failed to load chat sessions");
+            }
+        },
         confirmDelete(session_id) {
             this.sessionId = session_id;
             this.dialogDelete = true;
@@ -276,6 +287,9 @@ export default{
         this.$store.commit("clearMainLoading");
       }
     },
+    },
+    mounted() {
+        this.loadChatSessions();
     }
 }
 

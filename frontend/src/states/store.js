@@ -17,6 +17,10 @@ const defaultState = {
   chatSessions: [],
   messages: [],
   sessions: [],
+  settings: {
+    processingMsg: false,
+  },
+
 };
 
 const persistedState = createPersistedState({
@@ -80,6 +84,16 @@ const mutations = {
   },
   setSessions(state, payload) {
     state.sessions = payload;
+  },
+  setSettings(state, payload) {
+    if (Array.isArray(payload)) {
+      payload.forEach(({ key, value }) => {
+        state.settings[key] = value;
+      });
+    } else {
+      const { key, value } = payload;
+      state.settings[key] = value;
+    }
   },
   setPageTitle(state, payload) {
     state.pageTitle = payload;

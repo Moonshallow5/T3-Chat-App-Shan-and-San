@@ -37,6 +37,60 @@
       </v-row>
     </v-container>
 
+
+    <v-row v-show="pageTitle !== ''" align="center" justify="space-between" class="control-buttons-row" style="
+        position: absolute;
+        bottom: 10vh;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        width: 100%;
+        padding-left: 80px;
+        padding-right: 16px;
+      ">
+      <v-col>
+        <v-col>
+          <div class="typing-indicator" v-if="$store.state.settings.processingMsg">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </v-col>
+      </v-col>
+      <v-col>
+      </v-col>
+    </v-row>
+
+    <v-row v-show="pageTitle == '' " align="center" justify="space-between" class="control-buttons-row" style="
+        position: absolute;
+        bottom: 40vh;
+        left: 13%;
+        right: 0;
+        z-index: 20;
+        width: 100%;
+        padding-left: 24px;
+        padding-right: 16px;
+      ">
+      <v-col>
+        <v-col>
+          <div class="typing-indicator" v-if="$store.state.settings.processingMsg">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </v-col>
+      </v-col>
+      <v-col>
+      </v-col>
+    </v-row>
+
+
       
 
       <v-row v-if="pageTitle == ''" class="text-h5 poppins mb-5 welcome-message">
@@ -96,7 +150,7 @@ export default{
   },
 
   computed: {
-    ...mapState(['user', 'chatSessions','pageTitle','session_id', 'messages'])
+    ...mapState(['user', 'chatSessions','pageTitle','session_id',"processingMsg", 'messages'])
   },
 
   watch: {
@@ -109,6 +163,7 @@ export default{
     session_id(newValue) {
       this.$store.commit("setSessionId", newValue);
       this.currentSessionId = newValue;
+      console.log('chat session watch', this.currentSessionId)
     },
 
     '$store.state.pageTitle': {
@@ -121,18 +176,6 @@ export default{
 
   methods: {
     timeAgo,
-    async loadChatSessions() {
-      console.log('Loading chat sessions for user:', this.user);
-      try {
-        const response = await Ajax(`chat/sessions?user_id=${this.user.id}`, {}, 'GET');
-        console.log('Chat sessions response:', response);
-        this.$store.commit('setChatSessions', response.data);
-      } catch (error) {
-        console.error('Error loading chat sessions:', error);
-        this.$toast.error("Failed to load chat sessions");
-      }
-    },
-
     async createNewSession() {
       try {
         console.log('creating new session')
@@ -166,6 +209,7 @@ export default{
 
     async sendMessage() {
       if (!this.message_input.trim()) return;
+      this.$store.commit("setSettings", { key: "processingMsg", value: true });
 
       try {
         // Create new session if it doesn't exist
@@ -208,7 +252,7 @@ export default{
             this.$store.commit('setSessionId', this.currentSessionId);
           }
         }
-
+        this.$store.commit("setSettings", { key: "processingMsg", value: false });
         // Scroll to bottom after messages are added
         this.scrollToBottom();
       } catch (error) {
@@ -223,14 +267,15 @@ export default{
   },
 
   mounted() {
-    if (this.$store.state.pageTitle) {
+    if (this.$store.state.pageTitle && this.session_id) {
       this.pageTitle = this.$store.state.pageTitle;
+      this.currentSessionId=this.session_id
       this.$store.commit("setPageTitle", this.pageTitle);
     }
-    console.log('Chat component mounted');
+    console.log('chat session', this.currentSessionId)
+
     console.log('Current user:', this.user);
     console.log('messages yo',this.messages)
-    this.loadChatSessions();
   }
 }
 </script>
@@ -269,7 +314,7 @@ export default{
 
   .welcome-message {
     position: absolute;
-    bottom: 40vh;
+    bottom: 50vh;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -347,4 +392,66 @@ export default{
     border: none;
     outline: none;
   }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(128, 128, 128, 0.5);
+    padding: 10px;
+    border-radius: 32px;
+    width: 72px;
+    height: 36px;
+  }
+
+  .dot {
+    width: 4px;
+    height: 4px;
+    margin: 0 3px;
+    background-color: white;
+    border-radius: 50%;
+    display: inline-block;
+    animation: bounce 1s infinite ease-in-out;
+  }
+
+  .dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  .dot:nth-child(4) {
+    animation-delay: 0.6s;
+  }
+
+  .dot:nth-child(5) {
+    animation-delay: 0.8s;
+  }
+
+  .dot:nth-child(6) {
+    animation-delay: 1s;
+  }
+
+  .custom-list {
+    list-style-position: inside;
+  }
+
+  ::v-deep(.custom-list p) {
+    display: inline;
+  }
+
+  @keyframes bounce {
+    0%,
+    80%,
+    100% {
+      transform: scale(0);
+    }
+
+    40% {
+      transform: scale(1);
+    }
+  }
+
 </style>

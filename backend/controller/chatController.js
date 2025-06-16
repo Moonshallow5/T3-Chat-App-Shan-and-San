@@ -33,13 +33,42 @@ exports.sendMessage = async (req, res) => {
       [session_id]
     );
 
-    // If it's the first message, update the session title
+    // If it's the first message, generate a title using OpenAI
     if (messageCount.rows[0].count === '0') {
-      const title = content.length > 30 ? content.substring(0, 30) + '...' : content;
-      await pool.query(
-        "UPDATE chat_sessions SET title = $1 WHERE id = $2",
-        [title, session_id]
-      );
+      try {
+        const titleCompletion = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: "Generate a short, concise title (max 30 characters) for a chat that starts with this message. The title should capture the main topic or intent."
+            },
+            {
+              role: "user",
+              content: content
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 50
+        });
+
+        const generatedTitle = titleCompletion.choices[0].message.content.trim();
+        // Ensure title is not too long
+        const title = generatedTitle.length > 30 ? generatedTitle.substring(0, 27) + '...' : generatedTitle;
+
+        await pool.query(
+          "UPDATE chat_sessions SET title = $1 WHERE id = $2",
+          [title, session_id]
+        );
+      } catch (error) {
+        console.error("Title generation error:", error);
+        // Fallback to original method if title generation fails
+        const fallbackTitle = content.length > 30 ? content.substring(0, 30) + '...' : content;
+        await pool.query(
+          "UPDATE chat_sessions SET title = $1 WHERE id = $2",
+          [fallbackTitle, session_id]
+        );
+      }
     }
 
     // Insert the message
