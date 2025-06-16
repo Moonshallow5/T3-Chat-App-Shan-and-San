@@ -1,8 +1,6 @@
 const pool = require('../models/db');
-const axios = require('axios');
-
-// Flask server configuration
-const FLASK_SERVER_URL = 'http://127.0.0.1:5001';  
+const { OpenAI } = require("openai");
+const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
 exports.createSession = async (req, res) => {
   const { user_id } = req.body;
@@ -64,32 +62,32 @@ exports.sendMessage = async (req, res) => {
 
     // Get chat history for context
     const pastMessagesQuery = await pool.query(
-      "SELECT content, is_bot FROM messages WHERE session_id = $1 ORDER BY created_at DESC LIMIT 4",
+      "SELECT content, is_bot FROM messages WHERE session_id = $1 ORDER BY created_at DESC LIMIT 5",
       [session_id]
     );
 
-    // Format messages for the model
+    // Format messages for OpenAI (reverse to get chronological order)
     const chatHistory = pastMessagesQuery.rows.reverse().map(msg => ({
       role: msg.is_bot ? "persona" : "user",
       content: msg.content
     }));
 
     try {
-      console.log('Sending request to Flask server:', {
-        url: `${FLASK_SERVER_URL}/generate`,
-        text: content,
-        chatHistory
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini", // Basic model available in free tier
+        messages: [
+          { 
+            role: "system", 
+            content: "You are a helpful AI assistant. Keep responses concise and clear." 
+          },
+          ...chatHistory,
+          { role: "user", content: content }
+        ],
+        temperature: 0.7,
+        max_tokens: 100, // Reduced token limit for free tier
       });
 
-      // Call the Flask server
-      const response = await axios.post(`${FLASK_SERVER_URL}/generate`, {
-        text: content,
-        chat_history: chatHistory
-      });
-
-      console.log('Received response from Flask server:', response.data);
-
-      const botResponse = response.data.response;
+      const botResponse = completion.choices[0].message.content;
 
       // Insert bot response
       await pool.query(
@@ -105,8 +103,8 @@ exports.sendMessage = async (req, res) => {
         }
       });
     } catch (error) {
-      console.error("Flask server error:", error.response?.data || error.message);
-      // Fallback response if server fails
+      console.error("OpenAI API error:", error);
+      // Fallback response if API fails
       const fallbackResponse = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
       
       await pool.query(
