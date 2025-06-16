@@ -68,7 +68,7 @@ exports.sendMessage = async (req, res) => {
 
     // Format messages for OpenAI (reverse to get chronological order)
     const chatHistory = pastMessagesQuery.rows.reverse().map(msg => ({
-      role: msg.is_bot ? "persona" : "user",
+      role: msg.is_bot ? "assistant" : "user",
       content: msg.content
     }));
 

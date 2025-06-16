@@ -111,6 +111,9 @@
             this.$store.commit("setToken", response.data.token);
             this.$store.commit("setUser", { id: parseInt(response.data.user_id), username: this.username, name: response.data.name });
             this.$toast.success("Login successful!");
+            this.$store.commit("clearSessionId");
+            this.$store.commit("clearMessage");
+            this.$store.commit("clearPageTitle");
             this.$router.replace('/chat');
           } 
         } catch (err) {

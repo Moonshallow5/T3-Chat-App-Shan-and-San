@@ -216,6 +216,11 @@ export default{
       }
     },
   },
+  beforeUnmount(){
+    this.$store.commit("clearSessionId");
+    this.$store.commit("clearMessage");
+    this.$store.commit("clearPageTitle");
+  },
 
   mounted() {
     if (this.$store.state.pageTitle) {
