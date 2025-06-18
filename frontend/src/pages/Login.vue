@@ -38,24 +38,6 @@
               style=" color: black;"
             />
           </div>
-  
-          <!-- Remember Me & Forgot Password -->
-          <!-- <v-row class="remember-forgot" no-gutters>
-            <v-col cols="6" class="d-flex align-center">
-              <v-checkbox
-                v-model="rememberMe"
-                :label="$t('login.rememberMe')"
-                class="checkbox-container"
-                hide-details
-                dense
-              />
-            </v-col>
-            <v-col cols="6" class="d-flex align-center justify-end">
-              <span @click="forgotPassword" class="forgot-password hover-effect">
-                {{ $t("login.forgotPassword") }}
-              </span>
-            </v-col>
-          </v-row> -->
           <v-btn
             style="
               text-transform: none !important ;
@@ -105,7 +87,6 @@
             password: this.password,
           });
 
-          console.log("Response:", response);
   
           if (response.data?.token) {
             this.$store.commit("setToken", response.data.token);

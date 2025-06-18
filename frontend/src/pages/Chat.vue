@@ -166,7 +166,6 @@ export default{
     session_id(newValue) {
       this.$store.commit("setSessionId", newValue);
       this.currentSessionId = newValue;
-      console.log('chat session watch', this.currentSessionId)
     },
 
     '$store.state.pageTitle': {
@@ -181,7 +180,6 @@ export default{
     timeAgo,
     async createNewSession() {
       try {
-        console.log('creating new session')
         const response = await Ajax('chat/session', {
           user_id: parseInt(this.user.id)
         });
@@ -273,10 +271,6 @@ export default{
       this.currentSessionId=this.session_id
       this.$store.commit("setPageTitle", this.pageTitle);
     }
-    console.log('chat session', this.currentSessionId)
-
-    console.log('Current user:', this.user);
-    console.log('messages yo',this.messages)
     this.scrollToBottom();
   }
 }

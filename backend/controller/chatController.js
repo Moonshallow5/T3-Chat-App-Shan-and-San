@@ -91,7 +91,7 @@ exports.sendMessage = async (req, res) => {
 
     // Get chat history for context
     const pastMessagesQuery = await pool.query(
-      "SELECT content, is_bot FROM messages WHERE session_id = $1 ORDER BY created_at DESC LIMIT 5",
+      "SELECT content, is_bot FROM messages WHERE session_id = $1 ORDER BY created_at DESC LIMIT 8",
       [session_id]
     );
 
@@ -103,7 +103,7 @@ exports.sendMessage = async (req, res) => {
 
     try {
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini", // Basic model available in free tier
+        model: "gpt-4o-mini", 
         messages: [
           { 
             role: "system", 
@@ -113,7 +113,7 @@ exports.sendMessage = async (req, res) => {
           { role: "user", content: content }
         ],
         temperature: 0.7,
-        max_tokens: 100, // Reduced token limit for free tier
+        max_tokens: 200, 
       });
 
       const botResponse = completion.choices[0].message.content;

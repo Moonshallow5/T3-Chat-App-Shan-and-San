@@ -3,7 +3,6 @@
     <v-container class="chat-app" fluid>
       <h3  class="text-center poppins green-text">Profile Settings</h3>
   
-      <!-- Show user profile with avatar on left, name and email on right, name and email editable, have a save button and a button to edit password -->
       <v-row class="mt-5"  >
   
         <v-col cols="12" md = "6" offset-md="3" >
@@ -44,10 +43,6 @@
       mounted: function () {
         this.profile.name = this.user.name
         this.profile.username = this.user.username
-      
-
-
-
       }
     };
   </script>

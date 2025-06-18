@@ -180,10 +180,8 @@ export default{
             return timeAgo(timestamp);
         },
         async loadChatSessions() {
-            console.log('Loading chat sessions for user:', this.user);
             try {
                 const response = await Ajax(`chat/sessions?user_id=${this.user.id}`, {}, 'GET');
-                console.log('Chat sessions response:', response);
                 this.$store.commit('setChatSessions', response.data);
             } catch (error) {
                 console.error('Error loading chat sessions:', error);
@@ -230,7 +228,6 @@ export default{
         
         async openChat(session) {
           if (this.editingIndex !== null) return;
-          console.log('session yo',session)
           this.$store.commit("setMainLoading");
             try {
                 const response = await Ajax(`chat/session/${session.id}?user_id=${this.user.id}`, {}, 'GET');
@@ -279,7 +276,6 @@ export default{
         
         this.$toast.success("Title updated successfully");
       } catch (error) {
-        this.$toast.error("Failed to update title");
         // Revert the title in the UI if update fails
         this.chatSessions[index].title = this.originalTitle;
       } finally {
