@@ -26,7 +26,7 @@ Password: 12345678
 - Not only about using OpenAI for the Api keys for this chatbot. I also learnt that these simple chatbots which only processes couple of tokens for local memory as well as specifying response to limit to a couple of tokens, I realised how cheap chatbots can be for a single user lol. I have not even spent 1 cent of API keys usage lol, even though I spent the minimum price of $10
 - How to implement more features in just regular chatbots and providing a good UI/UX
 
-  ## 🚧Challenges I ran into
+## 🚧Challenges I ran into
 - Being able to upload, store and retrieve images was a pain, I used Supabase object storage for this as they do allow image storing in Supabase even though I thought of AWS S3
 
 ## 🟩Further Improvements
